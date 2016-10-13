@@ -62,7 +62,7 @@ if [ $BASE_URL_CHANGE ]; then
   BOUNDING_BOX_ANNOTATIONS="${BASE_URL}/ILSVRC2012_bbox_train_v2.tar.gz"
   BBOX_TAR_BALL="${BBOX_DIR}/annotations.tar.gz"
 fi
-wget "${BOUNDING_BOX_ANNOTATIONS}" -O "${BBOX_TAR_BALL}"
+# wget "${BOUNDING_BOX_ANNOTATIONS}" -O "${BBOX_TAR_BALL}"
 echo "Uncompressing bounding box annotations ..."
 tar xzf "${BBOX_TAR_BALL}" -C "${BBOX_DIR}"
 
@@ -76,7 +76,7 @@ OUTPUT_PATH="${OUTDIR}validation/"
 mkdir -p "${OUTPUT_PATH}"
 cd "${OUTDIR}/.."
 echo "Downloading ${VALIDATION_TARBALL} to ${OUTPUT_PATH}."
-wget -nd -c "${BASE_URL}/${VALIDATION_TARBALL}"
+# wget -nd -c "${BASE_URL}/${VALIDATION_TARBALL}"
 tar xf "${VALIDATION_TARBALL}" -C "${OUTPUT_PATH}"
 
 # Download all images from the ImageNet 2012 train dataset.
@@ -85,7 +85,7 @@ OUTPUT_PATH="${OUTDIR}train/"
 mkdir -p "${OUTPUT_PATH}"
 cd "${OUTDIR}/.."
 echo "Downloading ${TRAIN_TARBALL} to ${OUTPUT_PATH}."
-wget -nd -c "${BASE_URL}/${TRAIN_TARBALL}"
+# wget -nd -c "${BASE_URL}/${TRAIN_TARBALL}"
 
 # Un-compress the individual tar-files within the train tar-file.
 echo "Uncompressing individual train tar-balls in the training data."
