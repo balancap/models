@@ -19,6 +19,8 @@ from __future__ import division
 from __future__ import print_function
 
 import math
+import six
+
 import tensorflow as tf
 
 from datasets import dataset_factory
@@ -158,7 +160,7 @@ def main(_):
     })
 
     # Print the summaries to screen.
-    for name, value in names_to_values.iteritems():
+    for name, value in six.iteritems(names_to_values):
       summary_name = 'eval/%s' % name
       op = tf.scalar_summary(summary_name, value, collections=[])
       op = tf.Print(op, [value], summary_name)
