@@ -87,3 +87,5 @@ ENV/
 
 # Rope project settings
 .ropeproject
+slim/slim.sublime-project
+slim/slim.sublime-workspace
