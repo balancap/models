@@ -30,6 +30,7 @@ from nets import resnet_v1
 from nets import resnet_v2
 from nets import vgg
 from nets import leaders
+from nets import lead_vgg
 
 slim = tf.contrib.slim
 
@@ -52,6 +53,8 @@ networks_map = {'alexnet_v2': alexnet.alexnet_v2,
                 'resnet_v2_101': resnet_v2.resnet_v2_101,
                 'resnet_v2_152': resnet_v2.resnet_v2_152,
                 'resnet_v2_200': resnet_v2.resnet_v2_200,
+                'lead_vgg_16': lead_vgg.lead_vgg_16,
+                'lead_vgg_19': lead_vgg.lead_vgg_19,
                 'lead_inception_v3': leaders.lead_inception_v3,
                 }
 
@@ -75,6 +78,8 @@ arg_scopes_map = {'alexnet_v2': alexnet.alexnet_v2_arg_scope,
                   'resnet_v2_101': resnet_v2.resnet_arg_scope,
                   'resnet_v2_152': resnet_v2.resnet_arg_scope,
                   'resnet_v2_200': resnet_v2.resnet_arg_scope,
+                  'lead_vgg_16': lead_vgg.lead_vgg_arg_scope,
+                  'lead_vgg_19': lead_vgg.lead_vgg_arg_scope,
                   'lead_inception_v3': leaders.lead_inception_v3_arg_scope,
                   }
 

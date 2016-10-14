@@ -96,7 +96,7 @@ def lead_inception_v3_base(inputs,
   depth = lambda d: max(int(d * depth_multiplier), min_depth)
 
   with tf.variable_scope(scope, 'InceptionV3', [inputs]):
-    with slim.arg_scope([slim.conv2d, slim.max_pool2d, slim.avg_pool2d],
+    with slim.arg_scope([slim.conv2d, slim.max_pool2d, slim.avg_pool2d, conv2d_leaders],
                         stride=1, padding='VALID'):
       # 299 x 299 x 3
       end_point = 'Conv2d_1a_3x3'
@@ -136,7 +136,7 @@ def lead_inception_v3_base(inputs,
       # 35 x 35 x 192.
 
     # Inception blocks
-    with slim.arg_scope([slim.conv2d, slim.max_pool2d, slim.avg_pool2d],
+    with slim.arg_scope([slim.conv2d, slim.max_pool2d, slim.avg_pool2d, conv2d_leaders],
                         stride=1, padding='SAME'):
       # mixed: 35 x 35 x 256.
       end_point = 'Mixed_5b'
@@ -480,7 +480,7 @@ def lead_inception_v3(inputs,
           depth_multiplier=depth_multiplier)
 
       # Auxiliary Head logits
-      with slim.arg_scope([slim.conv2d, slim.max_pool2d, slim.avg_pool2d],
+      with slim.arg_scope([slim.conv2d, slim.max_pool2d, slim.avg_pool2d, conv2d_leaders],
                           stride=1, padding='SAME'):
         aux_logits = end_points['Mixed_6e']
         with tf.variable_scope('AuxLogits'):
