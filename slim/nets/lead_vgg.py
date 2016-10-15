@@ -42,7 +42,7 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from common_leaders import conv2d_leaders
+from nets.common_leaders import conv2d_leaders
 
 slim = tf.contrib.slim
 
@@ -120,7 +120,7 @@ def lead_vgg_a(inputs,
         net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
         end_points[sc.name + '/fc8'] = net
       return net, end_points
-vgg_a.default_image_size = 224
+lead_vgg_a.default_image_size = 224
 
 
 def lead_vgg_16(inputs,

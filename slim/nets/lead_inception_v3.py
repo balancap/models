@@ -19,7 +19,7 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from common_leaders import conv2d_leaders
+from nets.common_leaders import conv2d_leaders
 
 slim = tf.contrib.slim
 trunc_normal = lambda stddev: tf.truncated_normal_initializer(0.0, stddev)
@@ -98,21 +98,42 @@ def lead_inception_v3_base(inputs,
   with tf.variable_scope(scope, 'InceptionV3', [inputs]):
     with slim.arg_scope([slim.conv2d, slim.max_pool2d, slim.avg_pool2d, conv2d_leaders],
                         stride=1, padding='VALID'):
+      # # 299 x 299 x 3
+      # end_point = 'Conv2d_1a_3x3'
+      # net = slim.conv2d(inputs, depth(32), [3, 3], stride=2, scope=end_point)
+      # # net = conv2d_leaders(inputs, depth(32), [3, 3], rates=[1], scope=end_point, padding='SAME')
+      # net = slim.max_pool2d(net, [3, 3], stride=2, scope=end_point)
+      # end_points[end_point] = net
+      # if end_point == final_endpoint: return net, end_points
+
+      # # 149 x 149 x 32
+      # end_point = 'Conv2d_2a_3x3'
+      # net = slim.conv2d(net, depth(32), [3, 3], scope=end_point)
+      # # net = conv2d_leaders(net, depth(32), [3, 3], rates=[1], scope=end_point, padding='SAME')
+      # end_points[end_point] = net
+      # if end_point == final_endpoint: return net, end_points
+
       # 299 x 299 x 3
       end_point = 'Conv2d_1a_3x3'
-      net = slim.conv2d(inputs, depth(32), [3, 3], stride=2, scope=end_point)
+      # net = slim.conv2d(inputs, depth(32), [3, 3], stride=2, scope=end_point, padding='SAME')
+      net = conv2d_leaders(inputs, depth(32), [3, 3], rates=[1, 2], scope=end_point, padding='SAME')
+      net = slim.max_pool2d(net, [3, 3], stride=2, scope=end_point, padding='SAME')
       end_points[end_point] = net
       if end_point == final_endpoint: return net, end_points
       # 149 x 149 x 32
       end_point = 'Conv2d_2a_3x3'
-      net = slim.conv2d(net, depth(32), [3, 3], scope=end_point)
+      net = conv2d_leaders(net, depth(32), [3, 3], rates=[1, 2], scope=end_point, padding='SAME')
+      # net = slim.conv2d(net, depth(32), [3, 3], scope=end_point, padding='SAME')
       end_points[end_point] = net
       if end_point == final_endpoint: return net, end_points
+
       # 147 x 147 x 32
       end_point = 'Conv2d_2b_3x3'
-      net = slim.conv2d(net, depth(64), [3, 3], padding='SAME', scope=end_point)
+      net = conv2d_leaders(net, depth(64), [3, 3], rates=[1, 2], scope=end_point, padding='SAME')
+      # net = slim.conv2d(net, depth(64), [3, 3], padding='SAME', scope=end_point)
       end_points[end_point] = net
       if end_point == final_endpoint: return net, end_points
+
       # 147 x 147 x 64
       end_point = 'MaxPool_3a_3x3'
       net = slim.max_pool2d(net, [3, 3], stride=2, scope=end_point)
@@ -522,7 +543,7 @@ def lead_inception_v3(inputs,
       end_points['Logits'] = logits
       end_points['Predictions'] = prediction_fn(logits, scope='Predictions')
   return logits, end_points
-inception_v3.default_image_size = 299
+lead_inception_v3.default_image_size = 299
 
 
 def _reduced_kernel_size_for_small_input(input_tensor, kernel_size):
