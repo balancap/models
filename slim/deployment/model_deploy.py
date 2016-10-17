@@ -135,6 +135,7 @@ DeployedModel = collections.namedtuple('DeployedModel',
 # Default parameters for DeploymentConfig
 _deployment_params = {'num_clones': 1,
                       'clone_on_cpu': False,
+                      'fake_multiple_gpus': False,
                       'replica_id': 0,
                       'num_replicas': 1,
                       'num_ps_tasks': 0,
@@ -487,6 +488,7 @@ class DeploymentConfig(object):
   def __init__(self,
                num_clones=1,
                clone_on_cpu=False,
+               fake_multiple_gpus=False,
                replica_id=0,
                num_replicas=1,
                num_ps_tasks=0,
@@ -497,6 +499,10 @@ class DeploymentConfig(object):
     The config describes how to deploy a model across multiple clones and
     replicas.  The model will be replicated `num_clones` times in each replica.
     If `clone_on_cpu` is True, each clone will placed on CPU.
+
+    If `fake_multiple_gpus` is True, the model will only be replicated once on
+    a single GPU. This trick enables larger batch sizes, necessary for training
+    deep networks such as InceptionV3/V4, on a single GPU.
 
     If `num_replicas` is 1, the model is deployed via a single process.  In that
     case `worker_device`, `num_ps_tasks`, and `ps_device` are ignored.
@@ -530,6 +536,7 @@ class DeploymentConfig(object):
       raise ValueError('replica_id must be less than num_replicas')
     self._num_clones = num_clones
     self._clone_on_cpu = clone_on_cpu
+    self._fake_multiple_gpus = fake_multiple_gpus
     self._replica_id = replica_id
     self._num_replicas = num_replicas
     self._num_ps_tasks = num_ps_tasks
@@ -543,6 +550,10 @@ class DeploymentConfig(object):
   @property
   def clone_on_cpu(self):
     return self._clone_on_cpu
+
+  @property
+  def fake_multiple_gpus(self):
+    return self._fake_multiple_gpus
 
   @property
   def replica_id(self):
@@ -597,7 +608,7 @@ class DeploymentConfig(object):
     if self._clone_on_cpu:
       device += '/device:CPU:0'
     else:
-      if self._num_clones > 1:
+      if self._num_clones > 1 and not self._fake_multiple_gpus:
         device += '/device:GPU:%d' % clone_index
     return device
 
