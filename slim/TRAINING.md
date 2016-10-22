@@ -30,10 +30,10 @@ python train_image_classifier.py \
     --checkpoint_path=${CHECKPOINT_PATH} \
     --save_summaries_secs=600 \
     --save_interval_secs=600 \
-    --weight_decay=0.00004 \
+    --weight_decay=0.00001 \
     --optimizer=rmsprop \
     --learning_rate=0.0001 \
-    --batch_size=54
+    --batch_size=52
 
 
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v3.ckpt
