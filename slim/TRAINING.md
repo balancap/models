@@ -89,4 +89,23 @@ python eval_image_classifier.py \
     --dataset_name=imagenet \
     --dataset_split_name=validation \
     --labels_offset=1 \
-    --model_name=vgg_16
+    --model_name=lead_vgg_16
+
+
+DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
+TRAIN_DIR=/media/paul/DataExt4/ImageNet/Training/logs_vgg
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/vgg_16.ckpt
+python train_image_classifier.py \
+    --train_dir=${TRAIN_DIR} \
+    --dataset_dir=${DATASET_DIR} \
+    --dataset_name=imagenet \
+    --dataset_split_name=train \
+    --model_name=lead_vgg_16 \
+    --checkpoint_path=${CHECKPOINT_PATH} \
+    --save_summaries_secs=600 \
+    --save_interval_secs=600 \
+    --weight_decay=0.0005 \
+    --optimizer=rmsprop \
+    --learning_rate=0.0001 \
+    --labels_offset=1 \
+    --batch_size=48

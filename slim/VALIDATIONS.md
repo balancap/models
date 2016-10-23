@@ -1,3 +1,6 @@
+#==============================================================================
+# Inception v3
+#==============================================================================
 Inception v3 - 3 leaders conv2d - 34017
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.75442]
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.9257]
@@ -24,3 +27,19 @@ I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.93666]
 
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.77378]
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.9367]
+
+#==============================================================================
+# VGG 16
+#==============================================================================
+Initial VGG 16:
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.71026]
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.89844]
+
+Initial VGG 16 leaders (4 layers):
+
+
+Initial VGG 16 leaders (6 layers):
+
+
+Initial VGG 16 leaders (8 layers):
+

@@ -42,6 +42,7 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
+
 from nets.common_leaders import conv2d_leaders
 
 slim = tf.contrib.slim
@@ -91,7 +92,7 @@ def lead_vgg_a(inputs,
   with tf.variable_scope(scope, 'vgg_a', [inputs]) as sc:
     end_points_collection = sc.name + '_end_points'
     # Collect outputs for conv2d, fully_connected and max_pool2d.
-    with slim.arg_scope([slim.conv2d, slim.max_pool2d, conv2d_leaders],
+    with slim.arg_scope([slim.conv2d, conv2d_leaders, slim.max_pool2d],
                         outputs_collections=end_points_collection):
       net = slim.repeat(inputs, 1, slim.conv2d, 64, [3, 3], scope='conv1')
       net = slim.max_pool2d(net, [2, 2], scope='pool1')
@@ -115,7 +116,7 @@ def lead_vgg_a(inputs,
                         normalizer_fn=None,
                         scope='fc8')
       # Convert end_points_collection into a end_point dict.
-      end_points = dict(tf.get_collection(end_points_collection))
+      end_points = slim.utils.convert_collection_to_dict(end_points_collection)
       if spatial_squeeze:
         net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
         end_points[sc.name + '/fc8'] = net
@@ -150,25 +151,30 @@ def lead_vgg_16(inputs,
   with tf.variable_scope(scope, 'vgg_16', [inputs]) as sc:
     end_points_collection = sc.name + '_end_points'
     # Collect outputs for conv2d, fully_connected and max_pool2d.
-    with slim.arg_scope([slim.conv2d, slim.fully_connected, slim.max_pool2d, conv2d_leaders],
+    with slim.arg_scope([slim.conv2d, conv2d_leaders, slim.fully_connected, slim.max_pool2d],
                         outputs_collections=end_points_collection):
-      net = slim.conv2d(inputs, 64, [3, 3], scope='conv1_1')
-      net = slim.conv2d(net, 64, [3, 3], scope='conv1_2')
-
+      # Conv1
       # net = slim.conv2d_leaders(inputs, 64, [3, 3], rates=[1, 2], scope='conv1_1')
-      # net = slim.conv2d_leaders(net, 64, [3, 3], rates=[1, 2], scope='conv1_2')
-
+      net = slim.repeat(inputs, 2, conv2d_leaders, 64, [3, 3], [1, 2], scope='conv1')
       # net = slim.repeat(inputs, 2, slim.conv2d, 64, [3, 3], scope='conv1')
-
       net = slim.max_pool2d(net, [2, 2], scope='pool1')
-      net = slim.repeat(net, 2, slim.conv2d, 128, [3, 3], scope='conv2')
+
+      net = slim.repeat(net, 2, conv2d_leaders, 128, [3, 3], [1, 2], scope='conv2')
+      # net = slim.repeat(net, 2, slim.conv2d, 128, [3, 3], scope='conv2')
       net = slim.max_pool2d(net, [2, 2], scope='pool2')
+
+      # net = slim.repeat(net, 2, conv2d_leaders, 256, [3, 3], [1, 2], scope='conv3')
       net = slim.repeat(net, 3, slim.conv2d, 256, [3, 3], scope='conv3')
       net = slim.max_pool2d(net, [2, 2], scope='pool3')
+
+      # net = slim.repeat(net, 2, conv2d_leaders, 512, [3, 3], [1, 2], scope='conv4')
       net = slim.repeat(net, 3, slim.conv2d, 512, [3, 3], scope='conv4')
       net = slim.max_pool2d(net, [2, 2], scope='pool4')
+
+      # net = slim.repeat(net, 2, conv2d_leaders, 512, [3, 3], [1, 2], scope='conv5')
       net = slim.repeat(net, 3, slim.conv2d, 512, [3, 3], scope='conv5')
       net = slim.max_pool2d(net, [2, 2], scope='pool5')
+
       # Use conv2d instead of fully_connected layers.
       net = slim.conv2d(net, 4096, [7, 7], padding='VALID', scope='fc6')
       net = slim.dropout(net, dropout_keep_prob, is_training=is_training,
@@ -181,7 +187,7 @@ def lead_vgg_16(inputs,
                         normalizer_fn=None,
                         scope='fc8')
       # Convert end_points_collection into a end_point dict.
-      end_points = dict(tf.get_collection(end_points_collection))
+      end_points = slim.utils.convert_collection_to_dict(end_points_collection)
       if spatial_squeeze:
         net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
         end_points[sc.name + '/fc8'] = net
@@ -216,7 +222,7 @@ def lead_vgg_19(inputs,
   with tf.variable_scope(scope, 'vgg_19', [inputs]) as sc:
     end_points_collection = sc.name + '_end_points'
     # Collect outputs for conv2d, fully_connected and max_pool2d.
-    with slim.arg_scope([slim.conv2d, slim.fully_connected, slim.max_pool2d, conv2d_leaders],
+    with slim.arg_scope([slim.conv2d, conv2d_leaders, slim.fully_connected, slim.max_pool2d],
                         outputs_collections=end_points_collection):
       net = slim.repeat(inputs, 2, slim.conv2d, 64, [3, 3], scope='conv1')
       net = slim.max_pool2d(net, [2, 2], scope='pool1')
@@ -240,7 +246,7 @@ def lead_vgg_19(inputs,
                         normalizer_fn=None,
                         scope='fc8')
       # Convert end_points_collection into a end_point dict.
-      end_points = dict(tf.get_collection(end_points_collection))
+      end_points = slim.utils.convert_collection_to_dict(end_points_collection)
       if spatial_squeeze:
         net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
         end_points[sc.name + '/fc8'] = net
