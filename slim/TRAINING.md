@@ -32,7 +32,7 @@ python train_image_classifier.py \
     --save_interval_secs=600 \
     --weight_decay=0.00001 \
     --optimizer=rmsprop \
-    --learning_rate=0.0001 \
+    --learning_rate=0.00005 \
     --batch_size=52
 
 
@@ -59,3 +59,34 @@ python eval_image_classifier.py \
     --dataset_split_name=validation \
     --model_name=inception_resnet_v2
 
+#==============================================================================
+# ResNet-50 v1
+#==============================================================================
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/logs_resnet
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/resnet_v1_50.ckpt
+DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
+python eval_image_classifier.py \
+    --alsologtostderr \
+    --checkpoint_path=${CHECKPOINT_PATH} \
+    --dataset_dir=${DATASET_DIR} \
+    --dataset_name=imagenet \
+    --dataset_split_name=validation \
+    --labels_offset=1 \
+    --model_name=resnet_v1_50
+
+
+
+#==============================================================================
+# VGG 16
+#==============================================================================
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/logs_vgg
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/vgg_16.ckpt
+DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
+python eval_image_classifier.py \
+    --alsologtostderr \
+    --checkpoint_path=${CHECKPOINT_PATH} \
+    --dataset_dir=${DATASET_DIR} \
+    --dataset_name=imagenet \
+    --dataset_split_name=validation \
+    --labels_offset=1 \
+    --model_name=vgg_16

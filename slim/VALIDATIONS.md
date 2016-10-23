@@ -19,3 +19,8 @@ I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.93648]
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.77172]
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.93616]
 
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.77202]
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.93666]
+
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.77378]
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.9367]
