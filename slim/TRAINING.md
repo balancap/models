@@ -106,6 +106,6 @@ python train_image_classifier.py \
     --save_interval_secs=600 \
     --weight_decay=0.0005 \
     --optimizer=rmsprop \
-    --learning_rate=0.0001 \
+    --learning_rate=0.00005 \
     --labels_offset=1 \
-    --batch_size=40
+    --batch_size=42

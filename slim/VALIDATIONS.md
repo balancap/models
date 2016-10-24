@@ -47,6 +47,9 @@ Step 4300
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.6506]
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.86326]
 
+Step 13k
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.66158]
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.87046]
 
 
 
