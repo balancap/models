@@ -111,3 +111,25 @@ python train_image_classifier_fake.py \
     --num_clones=1 \
     --num_clones_fake=2 \
     --batch_size=32
+
+
+DATASET_DIR=/home/paul/ImageNet/Dataset
+TRAIN_DIR=/home/paul/ImageNet/logs
+CHECKPOINT_PATH=/home/paul/ImageNet/ckpts/vgg_16.ckpt
+python train_image_classifier_fake.py \
+    --train_dir=${TRAIN_DIR} \
+    --dataset_dir=${DATASET_DIR} \
+    --dataset_name=imagenet \
+    --dataset_split_name=train \
+    --model_name=lead_vgg_16 \
+    --checkpoint_path=${CHECKPOINT_PATH} \
+    --save_summaries_secs=600 \
+    --save_interval_secs=600 \
+    --weight_decay=0.0005 \
+    --optimizer=rmsprop \
+    --learning_rate=0.00005 \
+    --labels_offset=1 \
+    --num_clones=1 \
+    --num_clones_fake=2 \
+    --batch_size=32
+

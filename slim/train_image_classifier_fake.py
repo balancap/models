@@ -400,8 +400,6 @@ def _get_gradient_variables(gradients_variables):
                            v.dtype,
                            tf.constant_initializer(0.0),
                            trainable=False)
-      # print(g.name)
-      # print((vg.name, vg.device))
       vgrads.append((vg, v))
     return vgrads
 
@@ -556,7 +554,7 @@ def main(_):
     # Variables to train.
     variables_to_train = _get_variables_to_train()
     l = [(v.name, v.device, v.get_shape()) for v in variables_to_train]
-    print(l)
+    # print(l)
 
     #  and returns a train_tensor and summary_op
     total_loss, clones_gradients = model_deploy_fake.optimize_clones(
@@ -567,7 +565,6 @@ def main(_):
     # Add total_loss to summary.
     summaries.add(tf.scalar_summary('total_loss', total_loss,
                                     name='total_loss'))
-    print(clones_gradients)
 
     # Fake clones: sequential computation of gradients.
     if FLAGS.num_clones_fake > 1:
@@ -594,15 +591,18 @@ def main(_):
       # Update gradients
       def fn_update_gradients():
         grad_updates = optimizer.apply_gradients(var_gradients,
-                                                 global_step=global_step)
+                                                 global_step=None)
         return grad_updates
-      def fn_update_global_step():
-        return tf.assign_add(global_step, 1)
+      # def fn_update_global_step():
+      #   return tf.assign_add(global_step, 1)
       update_ops.append(tf.cond(tf.equal(global_step_mod, FLAGS.num_clones_fake-1),
                                 fn_update_gradients,
-                                fn_update_global_step))
+                                tf.no_op))
+      update_ops.append(tf.assign_add(global_step, 1))
 
-      update_ops.append(tf.Print(global_step_mod, [global_step_mod], 'Global step: '))
+      # Some logging!
+      update_ops.append(tf.Print(global_step_mod, [global_step_mod],
+                                 'Global mod step: '))
 
     else:
       # Create gradient updates.

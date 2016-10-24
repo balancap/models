@@ -295,7 +295,6 @@ def optimize_clones(clones, optimizer,
        of the gradients for each variable.
 
   """
-  print(kwargs['var_list'])
   grads_and_vars = []
   clones_losses = []
   num_clones = len(clones)
