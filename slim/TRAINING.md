@@ -95,7 +95,7 @@ python eval_image_classifier.py \
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
 TRAIN_DIR=/media/paul/DataExt4/ImageNet/Training/logs_vgg
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/vgg_16.ckpt
-python train_image_classifier.py \
+python train_image_classifier_fake.py \
     --train_dir=${TRAIN_DIR} \
     --dataset_dir=${DATASET_DIR} \
     --dataset_name=imagenet \
@@ -108,4 +108,6 @@ python train_image_classifier.py \
     --optimizer=rmsprop \
     --learning_rate=0.00005 \
     --labels_offset=1 \
-    --batch_size=42
+    --num_clones=1 \
+    --num_clones_fake=2 \
+    --batch_size=32

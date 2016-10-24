@@ -22,7 +22,7 @@ import tensorflow as tf
 
 from tensorflow.python.ops import control_flow_ops
 from datasets import dataset_factory
-from deployment import model_deploy
+from deployment import model_deploy_fake
 from nets import nets_factory
 from preprocessing import preprocessing_factory
 
@@ -37,6 +37,9 @@ tf.app.flags.DEFINE_string(
 
 tf.app.flags.DEFINE_integer('num_clones', 1,
                             'Number of model clones to deploy.')
+
+tf.app.flags.DEFINE_integer('num_clones_fake', 1,
+                            'Number of fake model clones to deploy.')
 
 tf.app.flags.DEFINE_boolean('clone_on_cpu', False,
                             'Use CPUs to deploy clones.')
@@ -388,6 +391,21 @@ def _get_variables_to_train():
   return variables_to_train
 
 
+def _get_gradient_variables(gradients_variables):
+  vgrads = []
+  with tf.variable_scope("vars_grad"):
+    for g, v in gradients_variables:
+      vg = tf.get_variable(g.name[:-2],
+                           g.get_shape(),
+                           v.dtype,
+                           tf.constant_initializer(0.0),
+                           trainable=False)
+      # print(g.name)
+      # print((vg.name, vg.device))
+      vgrads.append((vg, v))
+    return vgrads
+
+
 def main(_):
   if not FLAGS.dataset_dir:
     raise ValueError('You must supply the dataset directory with --dataset_dir')
@@ -397,7 +415,7 @@ def main(_):
     ######################
     # Config model_deploy#
     ######################
-    deploy_config = model_deploy.DeploymentConfig(
+    deploy_config = model_deploy_fake.DeploymentConfig(
         num_clones=FLAGS.num_clones,
         clone_on_cpu=FLAGS.clone_on_cpu,
         replica_id=FLAGS.task,
@@ -479,7 +497,7 @@ def main(_):
     # Gather initial summaries.
     summaries = set(tf.get_collection(tf.GraphKeys.SUMMARIES))
 
-    clones = model_deploy.create_clones(deploy_config, clone_fn, [batch_queue])
+    clones = model_deploy_fake.create_clones(deploy_config, clone_fn, [batch_queue])
     first_clone_scope = deploy_config.clone_scope(0)
     # Gather update_ops from the first clone. These contain, for example,
     # the updates for the batch_norm variables created by network_fn.
@@ -536,21 +554,60 @@ def main(_):
 
     # Variables to train.
     variables_to_train = _get_variables_to_train()
+    l = [(v.name, v.device, v.get_shape()) for v in variables_to_train]
+    print(l)
 
     #  and returns a train_tensor and summary_op
-    total_loss, clones_gradients = model_deploy.optimize_clones(
+    total_loss, clones_gradients = model_deploy_fake.optimize_clones(
         clones,
         optimizer,
         var_list=variables_to_train)
     # Add total_loss to summary.
     summaries.add(tf.scalar_summary('total_loss', total_loss,
                                     name='total_loss'))
+    print(clones_gradients)
+
+    # Fake clones: sequential computation of gradients.
+    # if FLAGS.num_clones_fake > 1:
+    #   var_gradients = _get_gradient_variables(clones_gradients)
+    #   global_step_mod = tf.mod(global_step, FLAGS.num_clones_fake)
+
+    #   # Assign or append gradients to tmp variables.
+    #   def fn_assign_gradients():
+    #     ops = []
+    #     for i, (g, v) in enumerate(clones_gradients):
+    #       ops.append(tf.assign(var_gradients[i][0], g))
+    #     return tf.group(*ops)
+    #   def fn_assign_add_gradients():
+    #     ops = []
+    #     for i, (g, v) in enumerate(clones_gradients):
+    #       ops.append(tf.assign_add(var_gradients[i][0], g))
+    #     return tf.group(*ops)
+
+    #   # update_ops.append(tf.cond(tf.equal(global_step_mod, 0),
+    #   #                           fn_assign_gradients,
+    #   #                           fn_assign_add_gradients))
+
+    #   # # Update gradients
+    #   # def fn_update_gradients():
+    #   #   grad_updates = optimizer.apply_gradients(var_gradients,
+    #   #                                            global_step=global_step)
+    #   #   return grad_updates
+    #   # update_ops.append(tf.cond(tf.equal(global_step_mod, FLAGS.num_clones_fake-1),
+    #   #                           fn_update_gradients,
+    #   #                           tf.no_op))
+
+    #   update_ops.append(tf.Print(global_step_mod, [global_step_mod], 'Global step: '))
+
+    #   # global_step
+    # else:
 
     # Create gradient updates.
     grad_updates = optimizer.apply_gradients(clones_gradients,
                                              global_step=global_step)
     update_ops.append(grad_updates)
 
+    # Control ops
     update_op = tf.group(*update_ops)
     train_tensor = control_flow_ops.with_dependencies([update_op], total_loss,
                                                       name='train_op')

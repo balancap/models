@@ -290,6 +290,7 @@ def optimize_clones(clones, optimizer,
        of the gradients for each variable.
 
   """
+  print(kwargs['var_list'])
   grads_and_vars = []
   clones_losses = []
   num_clones = len(clones)
@@ -610,6 +611,8 @@ class DeploymentConfig(object):
     else:
       if self._num_clones > 1 and not self._fake_multiple_gpus:
         device += '/device:GPU:%d' % clone_index
+      else:
+        device += '/device:GPU:0'
     return device
 
   def clone_scope(self, clone_index):
