@@ -568,44 +568,44 @@ def main(_):
     print(clones_gradients)
 
     # Fake clones: sequential computation of gradients.
-    # if FLAGS.num_clones_fake > 1:
-    #   var_gradients = _get_gradient_variables(clones_gradients)
-    #   global_step_mod = tf.mod(global_step, FLAGS.num_clones_fake)
+    if FLAGS.num_clones_fake > 1:
+      var_gradients = _get_gradient_variables(clones_gradients)
+      global_step_mod = tf.mod(global_step, FLAGS.num_clones_fake)
 
-    #   # Assign or append gradients to tmp variables.
-    #   def fn_assign_gradients():
-    #     ops = []
-    #     for i, (g, v) in enumerate(clones_gradients):
-    #       ops.append(tf.assign(var_gradients[i][0], g))
-    #     return tf.group(*ops)
-    #   def fn_assign_add_gradients():
-    #     ops = []
-    #     for i, (g, v) in enumerate(clones_gradients):
-    #       ops.append(tf.assign_add(var_gradients[i][0], g))
-    #     return tf.group(*ops)
+      # Assign or append gradients to tmp variables.
+      def fn_assign_gradients():
+        ops = []
+        for i, (g, v) in enumerate(clones_gradients):
+          ops.append(tf.assign(var_gradients[i][0], g))
+        return tf.group(*ops)
+      def fn_assign_add_gradients():
+        ops = []
+        for i, (g, v) in enumerate(clones_gradients):
+          ops.append(tf.assign_add(var_gradients[i][0], g))
+        return tf.group(*ops)
 
-    #   # update_ops.append(tf.cond(tf.equal(global_step_mod, 0),
-    #   #                           fn_assign_gradients,
-    #   #                           fn_assign_add_gradients))
+      update_ops.append(tf.cond(tf.equal(global_step_mod, 0),
+                                fn_assign_gradients,
+                                fn_assign_add_gradients))
 
-    #   # # Update gradients
-    #   # def fn_update_gradients():
-    #   #   grad_updates = optimizer.apply_gradients(var_gradients,
-    #   #                                            global_step=global_step)
-    #   #   return grad_updates
-    #   # update_ops.append(tf.cond(tf.equal(global_step_mod, FLAGS.num_clones_fake-1),
-    #   #                           fn_update_gradients,
-    #   #                           tf.no_op))
+      # Update gradients
+      def fn_update_gradients():
+        grad_updates = optimizer.apply_gradients(var_gradients,
+                                                 global_step=global_step)
+        return grad_updates
+      def fn_update_global_step():
+        return tf.assign_add(global_step, 1)
+      update_ops.append(tf.cond(tf.equal(global_step_mod, FLAGS.num_clones_fake-1),
+                                fn_update_gradients,
+                                fn_update_global_step))
 
-    #   update_ops.append(tf.Print(global_step_mod, [global_step_mod], 'Global step: '))
+      update_ops.append(tf.Print(global_step_mod, [global_step_mod], 'Global step: '))
 
-    #   # global_step
-    # else:
-
-    # Create gradient updates.
-    grad_updates = optimizer.apply_gradients(clones_gradients,
-                                             global_step=global_step)
-    update_ops.append(grad_updates)
+    else:
+      # Create gradient updates.
+      grad_updates = optimizer.apply_gradients(clones_gradients,
+                                               global_step=global_step)
+      update_ops.append(grad_updates)
 
     # Control ops
     update_op = tf.group(*update_ops)
