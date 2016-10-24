@@ -29,6 +29,10 @@ I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.77378]
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.9367]
 
 #==============================================================================
+# ResNet-50 v1
+#==============================================================================
+
+#==============================================================================
 # VGG 16
 #==============================================================================
 Initial VGG 16:
@@ -36,10 +40,23 @@ I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.71026]
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.89844]
 
 Initial VGG 16 leaders (4 layers):
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.52104]
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.76062]
+
+Step 4300
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.6506]
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.86326]
+
+
 
 
 Initial VGG 16 leaders (6 layers):
-
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.48228]
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.72524]
 
 Initial VGG 16 leaders (8 layers):
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.46208]
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.70306]
+
+
 

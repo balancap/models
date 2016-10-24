@@ -163,11 +163,11 @@ def lead_vgg_16(inputs,
       # net = slim.repeat(net, 2, slim.conv2d, 128, [3, 3], scope='conv2')
       net = slim.max_pool2d(net, [2, 2], scope='pool2')
 
-      # net = slim.repeat(net, 2, conv2d_leaders, 256, [3, 3], [1, 2], scope='conv3')
+      # net = slim.repeat(net, 3, conv2d_leaders, 256, [3, 3], [1, 2], scope='conv3')
       net = slim.repeat(net, 3, slim.conv2d, 256, [3, 3], scope='conv3')
       net = slim.max_pool2d(net, [2, 2], scope='pool3')
 
-      # net = slim.repeat(net, 2, conv2d_leaders, 512, [3, 3], [1, 2], scope='conv4')
+      # net = slim.repeat(net, 3, conv2d_leaders, 512, [3, 3], [1, 2], scope='conv4')
       net = slim.repeat(net, 3, slim.conv2d, 512, [3, 3], scope='conv4')
       net = slim.max_pool2d(net, [2, 2], scope='pool4')
 

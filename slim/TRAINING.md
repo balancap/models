@@ -79,8 +79,8 @@ python eval_image_classifier.py \
 #==============================================================================
 # VGG 16
 #==============================================================================
-CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/logs_vgg
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/vgg_16.ckpt
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/logs_vgg
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
 python eval_image_classifier.py \
     --alsologtostderr \
@@ -108,4 +108,4 @@ python train_image_classifier.py \
     --optimizer=rmsprop \
     --learning_rate=0.0001 \
     --labels_offset=1 \
-    --batch_size=48
+    --batch_size=40
