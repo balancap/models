@@ -198,7 +198,7 @@ def create_clones(config, model_fn, args=None, kwargs=None):
   return clones
 
 
-def _gather_clone_loss(clone, num_clones, regularization_losses):
+def _gather_clone_loss(clone, num_clones, num_clones_fake, regularization_losses):
   """Gather the loss for a single clone.
 
   Args:
@@ -231,6 +231,9 @@ def _gather_clone_loss(clone, num_clones, regularization_losses):
       all_losses.append(regularization_loss)
     if all_losses:
       sum_loss = tf.add_n(all_losses)
+      if num_clones_fake > 1:
+        sum_loss = tf.div(sum_loss, 1.0 * num_clones,
+                          name='scaled_sum_loss')
   # Add the summaries out of the clone device block.
   if clone_loss is not None:
     tf.scalar_summary(clone.scope + '/clone_loss', clone_loss,
@@ -241,8 +244,8 @@ def _gather_clone_loss(clone, num_clones, regularization_losses):
   return sum_loss
 
 
-def _optimize_clone(optimizer, clone, num_clones, regularization_losses,
-                    **kwargs):
+def _optimize_clone(optimizer, clone, num_clones, num_clones_fake,
+                    regularization_losses, **kwargs):
   """Compute losses and gradients for a single clone.
 
   Args:
@@ -259,7 +262,8 @@ def _optimize_clone(optimizer, clone, num_clones, regularization_losses,
       - clone_grads_and_vars: List of (gradient, variable) for the clone.
         Can be empty.
   """
-  sum_loss = _gather_clone_loss(clone, num_clones, regularization_losses)
+  sum_loss = _gather_clone_loss(clone, num_clones, num_clones_fake,
+                                regularization_losses)
   clone_grad = None
   if sum_loss is not None:
     with tf.device(clone.device):
@@ -268,6 +272,7 @@ def _optimize_clone(optimizer, clone, num_clones, regularization_losses,
 
 
 def optimize_clones(clones, optimizer,
+                    num_clones_fake=1,
                     regularization_losses=None,
                     **kwargs):
   """Compute clone losses and gradients for the given list of `Clones`.
@@ -300,7 +305,8 @@ def optimize_clones(clones, optimizer,
   for clone in clones:
     with tf.name_scope(clone.scope):
       clone_loss, clone_grad = _optimize_clone(
-          optimizer, clone, num_clones, regularization_losses, **kwargs)
+          optimizer, clone, num_clones, num_clones_fake,
+          regularization_losses, **kwargs)
       if clone_loss is not None:
         clones_losses.append(clone_loss)
         grads_and_vars.append(clone_grad)
@@ -369,7 +375,8 @@ def deploy(config,
         global_step = slim.get_or_create_global_step()
 
       # Compute the gradients for the clones.
-      total_loss, clones_gradients = optimize_clones(clones, optimizer)
+      total_loss, clones_gradients = optimize_clones(clones, optimizer,
+                                                     num_clones_fake=config.num_clones_fake)
 
       if clones_gradients:
         if summarize_gradients:
@@ -488,8 +495,8 @@ class DeploymentConfig(object):
 
   def __init__(self,
                num_clones=1,
+               num_clones_fake=1,
                clone_on_cpu=False,
-               fake_multiple_gpus=False,
                replica_id=0,
                num_replicas=1,
                num_ps_tasks=0,
@@ -536,8 +543,8 @@ class DeploymentConfig(object):
     if replica_id >= num_replicas:
       raise ValueError('replica_id must be less than num_replicas')
     self._num_clones = num_clones
+    self._num_clones_fake = num_clones_fake
     self._clone_on_cpu = clone_on_cpu
-    self._fake_multiple_gpus = fake_multiple_gpus
     self._replica_id = replica_id
     self._num_replicas = num_replicas
     self._num_ps_tasks = num_ps_tasks
@@ -549,12 +556,12 @@ class DeploymentConfig(object):
     return self._num_clones
 
   @property
-  def clone_on_cpu(self):
-    return self._clone_on_cpu
+  def num_clones_fake(self):
+    return self._num_clones_fake
 
   @property
-  def fake_multiple_gpus(self):
-    return self._fake_multiple_gpus
+  def clone_on_cpu(self):
+    return self._clone_on_cpu
 
   @property
   def replica_id(self):
@@ -609,10 +616,8 @@ class DeploymentConfig(object):
     if self._clone_on_cpu:
       device += '/device:CPU:0'
     else:
-      if self._num_clones > 1 and not self._fake_multiple_gpus:
+      if self._num_clones > 1:
         device += '/device:GPU:%d' % clone_index
-      else:
-        device += '/device:GPU:0'
     return device
 
   def clone_scope(self, clone_index):

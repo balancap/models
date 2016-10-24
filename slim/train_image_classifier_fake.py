@@ -417,6 +417,7 @@ def main(_):
     ######################
     deploy_config = model_deploy_fake.DeploymentConfig(
         num_clones=FLAGS.num_clones,
+        num_clones_fake=FLAGS.num_clones_fake,
         clone_on_cpu=FLAGS.clone_on_cpu,
         replica_id=FLAGS.task,
         num_replicas=FLAGS.worker_replicas,
@@ -561,6 +562,7 @@ def main(_):
     total_loss, clones_gradients = model_deploy_fake.optimize_clones(
         clones,
         optimizer,
+        num_clones_fake=FLAGS.num_clones_fake,
         var_list=variables_to_train)
     # Add total_loss to summary.
     summaries.add(tf.scalar_summary('total_loss', total_loss,
@@ -573,6 +575,7 @@ def main(_):
       global_step_mod = tf.mod(global_step, FLAGS.num_clones_fake)
 
       # Assign or append gradients to tmp variables.
+      # Gradients are supposed to be already rescaled by num_clones_fake factor.
       def fn_assign_gradients():
         ops = []
         for i, (g, v) in enumerate(clones_gradients):
