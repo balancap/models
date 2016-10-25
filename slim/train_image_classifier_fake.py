@@ -574,35 +574,39 @@ def main(_):
       # Assign or append gradients to tmp variables.
       # Gradients are supposed to be already rescaled by num_clones_fake factor.
       def fn_assign_gradients():
-        ops = []
+        vgrads = []
         for i, (g, v) in enumerate(clones_gradients):
-          ops.append(tf.assign(var_gradients[i][0], g))
-        return tf.group(*ops)
+          vgrads.append(tf.assign(var_gradients[i][0], g))
+        return tf.tuple(vgrads)
       def fn_assign_add_gradients():
-        ops = []
+        vgrads = []
         for i, (g, v) in enumerate(clones_gradients):
-          ops.append(tf.assign_add(var_gradients[i][0], g))
-        return tf.group(*ops)
+          vgrads.append(tf.assign_add(var_gradients[i][0], g))
+        return tf.tuple(vgrads)
 
-      update_ops.append(tf.cond(tf.equal(global_step_mod, 0),
-                                fn_assign_gradients,
-                                fn_assign_add_gradients))
+      up_grads = tf.cond(tf.equal(global_step_mod, 0),
+                         fn_assign_gradients,
+                         fn_assign_add_gradients)
 
       # Update gradients
       def fn_update_gradients():
-        grad_updates = optimizer.apply_gradients(var_gradients,
+        vgrads = [(up_grads[i], var_gradients[i][1]) for i in range(len(up_grads))]
+        grad_updates = optimizer.apply_gradients(vgrads,
                                                  global_step=None)
         return grad_updates
       # def fn_update_global_step():
       #   return tf.assign_add(global_step, 1)
-      update_ops.append(tf.cond(tf.equal(global_step_mod, FLAGS.num_clones_fake-1),
-                                fn_update_gradients,
-                                tf.no_op))
-      update_ops.append(tf.assign_add(global_step, 1))
-
+      grad_updates = tf.cond(tf.equal(global_step_mod, FLAGS.num_clones_fake-1),
+                             fn_update_gradients,
+                             tf.no_op)
+      update_ops.append(grad_updates)
       # Some logging!
       update_ops.append(tf.Print(global_step_mod, [global_step_mod],
                                  'Global mod step: '))
+
+      # Update global step, after gradient updates. A bit hacky...
+      global_step_dep = control_flow_ops.with_dependencies([grad_updates], global_step)
+      update_ops.append(tf.assign(global_step, global_step_dep + 1))
 
     else:
       # Create gradient updates.

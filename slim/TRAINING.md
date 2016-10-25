@@ -142,3 +142,22 @@ DATA_DIR=/tmp/data/mnist
 python download_and_convert_data.py \
     --dataset_name=mnist \
     --dataset_dir="${DATA_DIR}"
+
+
+DATASET_DIR=/tmp/data/mnist
+TRAIN_DIR=/home/paul/mnist/logs
+python train_image_classifier_fake.py \
+    --train_dir=${TRAIN_DIR} \
+    --dataset_dir=${DATASET_DIR} \
+    --dataset_name=mnist \
+    --dataset_split_name=train \
+    --model_name=lenet \
+    --save_summaries_secs=60 \
+    --save_interval_secs=60 \
+    --weight_decay=0.0005 \
+    --optimizer=adadelta \
+    --learning_rate=0.005 \
+    --labels_offset=1 \
+    --num_clones=1 \
+    --num_clones_fake=4 \
+    --batch_size=64
