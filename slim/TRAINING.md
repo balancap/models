@@ -116,7 +116,7 @@ python train_image_classifier_fake.py \
 
 
 #==============================================================================
-# Laptop tests...
+# Laptop tests... CIFAR10...
 #==============================================================================
 DATASET_DIR=/home/paul/ImageNet/Dataset
 TRAIN_DIR=/home/paul/ImageNet/logs
@@ -138,3 +138,7 @@ python train_image_classifier_fake.py \
     --num_clones_fake=2 \
     --batch_size=32
 
+DATA_DIR=/tmp/data/mnist
+python download_and_convert_data.py \
+    --dataset_name=mnist \
+    --dataset_dir="${DATA_DIR}"
