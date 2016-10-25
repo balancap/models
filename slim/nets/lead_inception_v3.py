@@ -146,8 +146,8 @@ def lead_inception_v3_base(inputs,
       if end_point == final_endpoint: return net, end_points
       # 73 x 73 x 80.
       end_point = 'Conv2d_4a_3x3'
-      # net = conv2d_leaders(net, depth(192), [3, 3], rates=[1, 2], scope=end_point, padding='SAME')
-      net = slim.conv2d(net, depth(192), [3, 3], scope=end_point)
+      net = conv2d_leaders(net, depth(192), [3, 3], rates=[1, 2], scope=end_point, padding='SAME')
+      # net = slim.conv2d(net, depth(192), [3, 3], scope=end_point)
       end_points[end_point] = net
       if end_point == final_endpoint: return net, end_points
       # 71 x 71 x 192.

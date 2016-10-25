@@ -143,6 +143,7 @@ def conv2d_leaders(inputs,
                 outputs = node
             else:
                 outputs = tf.maximum(outputs, node)
+                # outputs = tf.add(outputs, node)
         # # Add bias?
         # if biases is not None:
         #     outputs = tf.nn.bias_add(outputs, biases)

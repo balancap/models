@@ -211,6 +211,7 @@ def _gather_clone_loss(clone, num_clones, num_clones_fake, regularization_losses
     A tensor for the total loss for the clone.  Can be None.
   """
   # The return value.
+  print(num_clones_fake)
   sum_loss = None
   # Individual components of the loss that will need summaries.
   clone_loss = None
@@ -232,7 +233,7 @@ def _gather_clone_loss(clone, num_clones, num_clones_fake, regularization_losses
     if all_losses:
       sum_loss = tf.add_n(all_losses)
       if num_clones_fake > 1:
-        sum_loss = tf.div(sum_loss, 1.0 * num_clones,
+        sum_loss = tf.div(sum_loss, 1.0 * num_clones_fake,
                           name='scaled_sum_loss')
   # Add the summaries out of the clone device block.
   if clone_loss is not None:

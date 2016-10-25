@@ -56,6 +56,11 @@ I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.67046]
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.87472]
 
 
+Step 30k
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.67588]
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.87748]
+
+
 
 Initial VGG 16 leaders (6 layers):
 I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.48228]
@@ -67,3 +72,5 @@ I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.70306]
 
 
 
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.86268]
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.65118]

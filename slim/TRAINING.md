@@ -21,19 +21,21 @@ python train_image_classifier.py \
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
 TRAIN_DIR=/media/paul/DataExt4/ImageNet/Training/logs
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v3.ckpt
-python train_image_classifier.py \
+python train_image_classifier_fake.py \
     --train_dir=${TRAIN_DIR} \
     --dataset_dir=${DATASET_DIR} \
     --dataset_name=imagenet \
     --dataset_split_name=train \
     --model_name=lead_inception_v3 \
     --checkpoint_path=${CHECKPOINT_PATH} \
-    --save_summaries_secs=600 \
+    --save_summaries_secs=60 \
     --save_interval_secs=600 \
-    --weight_decay=0.00001 \
+    --weight_decay=0.00005 \
     --optimizer=rmsprop \
-    --learning_rate=0.00005 \
-    --batch_size=52
+    --learning_rate=0.001 \
+    --num_clones=1 \
+    --num_clones_fake=8 \
+    --batch_size=48
 
 
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v3.ckpt
@@ -102,17 +104,20 @@ python train_image_classifier_fake.py \
     --dataset_split_name=train \
     --model_name=lead_vgg_16 \
     --checkpoint_path=${CHECKPOINT_PATH} \
-    --save_summaries_secs=600 \
+    --save_summaries_secs=60 \
     --save_interval_secs=600 \
     --weight_decay=0.0005 \
     --optimizer=rmsprop \
-    --learning_rate=0.00005 \
+    --learning_rate=0.0002 \
     --labels_offset=1 \
     --num_clones=1 \
-    --num_clones_fake=2 \
+    --num_clones_fake=8 \
     --batch_size=32
 
 
+#==============================================================================
+# Laptop tests...
+#==============================================================================
 DATASET_DIR=/home/paul/ImageNet/Dataset
 TRAIN_DIR=/home/paul/ImageNet/logs
 CHECKPOINT_PATH=/home/paul/ImageNet/ckpts/vgg_16.ckpt
@@ -123,7 +128,7 @@ python train_image_classifier_fake.py \
     --dataset_split_name=train \
     --model_name=lead_vgg_16 \
     --checkpoint_path=${CHECKPOINT_PATH} \
-    --save_summaries_secs=600 \
+    --save_summaries_secs=60 \
     --save_interval_secs=600 \
     --weight_decay=0.0005 \
     --optimizer=rmsprop \
