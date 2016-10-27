@@ -41,7 +41,7 @@ import collections
 import tensorflow as tf
 
 slim = tf.contrib.slim
-
+from nets.common_leaders import conv2d_leaders
 
 class Block(collections.namedtuple('Block', ['scope', 'unit_fn', 'args'])):
   """A named tuple describing a ResNet block.
@@ -237,7 +237,7 @@ def resnet_arg_scope(weight_decay=0.0001,
   }
 
   with slim.arg_scope(
-      [slim.conv2d],
+      [slim.conv2d, conv2d_leaders],
       weights_regularizer=slim.l2_regularizer(weight_decay),
       weights_initializer=slim.variance_scaling_initializer(),
       activation_fn=tf.nn.relu,

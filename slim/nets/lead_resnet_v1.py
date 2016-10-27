@@ -59,10 +59,62 @@ from __future__ import print_function
 import tensorflow as tf
 
 from nets import resnet_utils
-
+from nets.common_leaders import conv2d_leaders
 
 resnet_arg_scope = resnet_utils.resnet_arg_scope
 slim = tf.contrib.slim
+
+
+def conv2d_same_lead(inputs, num_outputs, kernel_size, stride, rate=1, scope=None):
+  """Strided 2-D convolution with 'SAME' padding.
+
+  When stride > 1, then we do explicit zero-padding, followed by conv2d with
+  'VALID' padding.
+
+  Note that
+
+     net = conv2d_same(inputs, num_outputs, 3, stride=stride)
+
+  is equivalent to
+
+     net = slim.conv2d(inputs, num_outputs, 3, stride=1, padding='SAME')
+     net = subsample(net, factor=stride)
+
+  whereas
+
+     net = slim.conv2d(inputs, num_outputs, 3, stride=stride, padding='SAME')
+
+  is different when the input's height or width is even, which is why we add the
+  current function. For more details, see ResnetUtilsTest.testConv2DSameEven().
+
+  Args:
+    inputs: A 4-D tensor of size [batch, height_in, width_in, channels].
+    num_outputs: An integer, the number of output filters.
+    kernel_size: An int with the kernel_size of the filters.
+    stride: An integer, the output stride.
+    rate: An integer, rate for atrous convolution.
+    scope: Scope.
+
+  Returns:
+    output: A 4-D tensor of size [batch, height_out, width_out, channels] with
+      the convolution output.
+  """
+  if stride == 1:
+    return conv2d_leaders(inputs, num_outputs, [kernel_size, kernel_size],
+                          rates=[1, 2], padding='SAME', scope=scope)
+  else:
+    net = conv2d_leaders(inputs, num_outputs, [kernel_size, kernel_size],
+                         rates=[1, 2], padding='SAME', scope=scope)
+    return slim.max_pool2d(net, [1, 1], stride=stride, scope=scope)
+
+    # kernel_size_effective = kernel_size + (kernel_size - 1) * (rate - 1)
+    # pad_total = kernel_size_effective - 1
+    # pad_beg = pad_total // 2
+    # pad_end = pad_total - pad_beg
+    # inputs = tf.pad(inputs,
+    #                 [[0, 0], [pad_beg, pad_end], [pad_beg, pad_end], [0, 0]])
+    # return slim.conv2d(inputs, num_outputs, kernel_size, stride=stride,
+    #                    rate=rate, padding='VALID', scope=scope)
 
 
 @slim.add_arg_scope
@@ -97,11 +149,59 @@ def bottleneck(inputs, depth, depth_bottleneck, stride, rate=1,
     else:
       shortcut = slim.conv2d(inputs, depth, [1, 1], stride=stride,
                              activation_fn=None, scope='shortcut')
-
     residual = slim.conv2d(inputs, depth_bottleneck, [1, 1], stride=1,
                            scope='conv1')
     residual = resnet_utils.conv2d_same(residual, depth_bottleneck, 3, stride,
                                         rate=rate, scope='conv2')
+    residual = slim.conv2d(residual, depth, [1, 1], stride=1,
+                           activation_fn=None, scope='conv3')
+
+    output = tf.nn.relu(shortcut + residual)
+
+    return slim.utils.collect_named_outputs(outputs_collections,
+                                            sc.original_name_scope,
+                                            output)
+
+
+@slim.add_arg_scope
+def bottleneck_lead(inputs, depth, depth_bottleneck, stride, rate=1,
+                    outputs_collections=None, scope=None):
+  """Bottleneck residual unit variant with BN after convolutions.
+
+  This is the original residual unit proposed in [1]. See Fig. 1(a) of [2] for
+  its definition. Note that we use here the bottleneck variant which has an
+  extra bottleneck layer.
+
+  When putting together two consecutive ResNet blocks that use this unit, one
+  should use stride = 2 in the last unit of the first block.
+
+  Args:
+    inputs: A tensor of size [batch, height, width, channels].
+    depth: The depth of the ResNet unit output.
+    depth_bottleneck: The depth of the bottleneck layers.
+    stride: The ResNet unit's stride. Determines the amount of downsampling of
+      the units output compared to its input.
+    rate: An integer, rate for atrous convolution.
+    outputs_collections: Collection to add the ResNet unit output.
+    scope: Optional variable_scope.
+
+  Returns:
+    The ResNet unit's output.
+  """
+  with tf.variable_scope(scope, 'bottleneck_v1', [inputs]) as sc:
+    depth_in = slim.utils.last_dimension(inputs.get_shape(), min_rank=4)
+    if depth == depth_in:
+      shortcut = resnet_utils.subsample(inputs, stride, 'shortcut')
+    else:
+      shortcut = slim.conv2d(inputs, depth, [1, 1], stride=stride,
+                             activation_fn=None, scope='shortcut')
+
+    residual = slim.conv2d(inputs, depth_bottleneck, [1, 1], stride=1,
+                           scope='conv1')
+    residual = conv2d_same_lead(residual, depth_bottleneck, 3, stride,
+                                rate=rate, scope='conv2')
+    # residual = resnet_utils.conv2d_same(residual, depth_bottleneck, 3, stride,
+    #                                     rate=rate, scope='conv2')
     residual = slim.conv2d(residual, depth, [1, 1], stride=1,
                            activation_fn=None, scope='conv3')
 
@@ -179,6 +279,7 @@ def resnet_v1(inputs,
   with tf.variable_scope(scope, 'resnet_v1', [inputs], reuse=reuse) as sc:
     end_points_collection = sc.name + '_end_points'
     with slim.arg_scope([slim.conv2d, bottleneck,
+                         conv2d_leaders, bottleneck_lead,
                          resnet_utils.stack_blocks_dense],
                         outputs_collections=end_points_collection):
       with slim.arg_scope([slim.batch_norm], is_training=is_training):
@@ -220,9 +321,9 @@ def resnet_v1_50(inputs,
       resnet_utils.Block(
           'block2', bottleneck, [(512, 128, 1)] * 3 + [(512, 128, 2)]),
       resnet_utils.Block(
-          'block3', bottleneck, [(1024, 256, 1)] * 5 + [(1024, 256, 2)]),
+          'block3', bottleneck_lead, [(1024, 256, 1)] * 5 + [(1024, 256, 2)]),
       resnet_utils.Block(
-          'block4', bottleneck, [(2048, 512, 1)] * 3)
+          'block4', bottleneck_lead, [(2048, 512, 1)] * 3)
   ]
   return resnet_v1(inputs, blocks, num_classes, is_training,
                    global_pool=global_pool, output_stride=output_stride,

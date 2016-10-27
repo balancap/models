@@ -79,6 +79,25 @@ python eval_image_classifier.py \
     --model_name=lead_resnet_v1_50
 
 
+DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
+TRAIN_DIR=/media/paul/DataExt4/ImageNet/Training/logs_resnet
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/resnet_v1_50.ckpt
+python train_image_classifier_fake.py \
+    --train_dir=${TRAIN_DIR} \
+    --dataset_dir=${DATASET_DIR} \
+    --dataset_name=imagenet \
+    --dataset_split_name=train \
+    --model_name=lead_resnet_v1_50 \
+    --checkpoint_path=${CHECKPOINT_PATH} \
+    --save_summaries_secs=60 \
+    --save_interval_secs=600 \
+    --weight_decay=0.0001 \
+    --optimizer=rmsprop \
+    --learning_rate=0.0001 \
+    --labels_offset=1 \
+    --num_clones=1 \
+    --num_clones_fake=1 \
+    --batch_size=48
 
 #==============================================================================
 # VGG 16

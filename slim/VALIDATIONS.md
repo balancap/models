@@ -37,6 +37,10 @@ I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.9371]
 #==============================================================================
 # ResNet-50 v1
 #==============================================================================
+Original ResNet-50 v1
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Recall@5[0.92188]
+I tensorflow/core/kernels/logging_ops.cc:79] eval/Accuracy[0.7523]
+
 
 #==============================================================================
 # VGG 16
