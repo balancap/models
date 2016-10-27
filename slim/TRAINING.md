@@ -66,8 +66,8 @@ python eval_image_classifier.py \
 #==============================================================================
 # ResNet-50 v1
 #==============================================================================
-CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/logs_resnet
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/resnet_v1_50.ckpt
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/logs_resnet
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
 python eval_image_classifier.py \
     --alsologtostderr \
@@ -93,11 +93,11 @@ python train_image_classifier_fake.py \
     --save_interval_secs=600 \
     --weight_decay=0.0001 \
     --optimizer=rmsprop \
-    --learning_rate=0.0001 \
+    --learning_rate=0.001 \
     --labels_offset=1 \
     --num_clones=1 \
-    --num_clones_fake=1 \
-    --batch_size=48
+    --num_clones_fake=4 \
+    --batch_size=52
 
 #==============================================================================
 # VGG 16
