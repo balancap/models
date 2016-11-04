@@ -21,6 +21,7 @@ python train_image_classifier.py \
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
 TRAIN_DIR=/media/paul/DataExt4/ImageNet/Training/logs
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v3.ckpt
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/logs/icptn_rate6/model.ckpt-280298
 python train_image_classifier_fake.py \
     --train_dir=${TRAIN_DIR} \
     --dataset_dir=${DATASET_DIR} \
@@ -32,9 +33,16 @@ python train_image_classifier_fake.py \
     --save_interval_secs=600 \
     --weight_decay=0.00001 \
     --optimizer=rmsprop \
+<<<<<<< HEAD
     --learning_rate=0.00008 \
     --num_clones=1 \
     --num_clones_fake=32 \
+=======
+    --learning_rate=0.0005 \
+    --num_clones=1 \
+    --num_clones_fake=32 \
+    --ignore_missing_vars=1 \
+>>>>>>> 80635d31592a9b2521767be1fa9d064ad5be1316
     --batch_size=48
 
 
@@ -64,8 +72,8 @@ python eval_image_classifier.py \
 #==============================================================================
 # ResNet-50 v1
 #==============================================================================
-CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/logs_resnet
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/resnet_v1_50.ckpt
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/logs_resnet
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
 python eval_image_classifier.py \
     --alsologtostderr \
@@ -74,9 +82,28 @@ python eval_image_classifier.py \
     --dataset_name=imagenet \
     --dataset_split_name=validation \
     --labels_offset=1 \
-    --model_name=resnet_v1_50
+    --model_name=lead_resnet_v1_50
 
 
+DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
+TRAIN_DIR=/media/paul/DataExt4/ImageNet/Training/logs_resnet
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/resnet_v1_50.ckpt
+python train_image_classifier_fake.py \
+    --train_dir=${TRAIN_DIR} \
+    --dataset_dir=${DATASET_DIR} \
+    --dataset_name=imagenet \
+    --dataset_split_name=train \
+    --model_name=lead_resnet_v1_50 \
+    --checkpoint_path=${CHECKPOINT_PATH} \
+    --save_summaries_secs=60 \
+    --save_interval_secs=600 \
+    --weight_decay=0.0001 \
+    --optimizer=rmsprop \
+    --learning_rate=0.001 \
+    --labels_offset=1 \
+    --num_clones=1 \
+    --num_clones_fake=4 \
+    --batch_size=52
 
 #==============================================================================
 # VGG 16

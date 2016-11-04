@@ -370,7 +370,8 @@ def _get_init_fn():
   return slim.assign_from_checkpoint_fn(
       checkpoint_path,
       variables_to_restore,
-      ignore_missing_vars=FLAGS.ignore_missing_vars)
+      # ignore_missing_vars=FLAGS.ignore_missing_vars)
+      ignore_missing_vars=True)
 
 
 def _get_variables_to_train():
