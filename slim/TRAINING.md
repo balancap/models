@@ -30,17 +30,17 @@ python train_image_classifier_fake.py \
     --checkpoint_path=${CHECKPOINT_PATH} \
     --save_summaries_secs=60 \
     --save_interval_secs=600 \
-    --weight_decay=0.00005 \
+    --weight_decay=0.00001 \
     --optimizer=rmsprop \
-    --learning_rate=0.001 \
+    --learning_rate=0.00008 \
     --num_clones=1 \
-    --num_clones_fake=8 \
+    --num_clones_fake=32 \
     --batch_size=48
 
 
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v3.ckpt
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/logs
-DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
+DATASET_DIR=/media/paul/Data8Ext4/ImageNet/Dataset
 python eval_image_classifier.py \
     --alsologtostderr \
     --checkpoint_path=${CHECKPOINT_PATH} \
@@ -155,9 +155,9 @@ python train_image_classifier_fake.py \
     --save_summaries_secs=60 \
     --save_interval_secs=60 \
     --weight_decay=0.0005 \
-    --optimizer=adadelta \
-    --learning_rate=0.005 \
+    --optimizer=adam \
+    --learning_rate=0.05 \
     --labels_offset=1 \
     --num_clones=1 \
-    --num_clones_fake=4 \
+    --num_clones_fake=8 \
     --batch_size=64
