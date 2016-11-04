@@ -479,7 +479,7 @@ your custom data set. Please see the associated options and assumptions behind
 this script by reading the comments section of [`build_image_data.py`]
 (inception/data/build_image_data.py). Also, if your custom data has a different 
 number of examples or classes, you need to change the appropriate values in
-[`imagenet_data.py`](imagenet_data.py).
+[`imagenet_data.py`](inception/imagenet_data.py).
 
 The second piece you will need is a trained Inception v3 image model. You have
 the option of either training one yourself (See [How to Train from Scratch]
@@ -701,7 +701,7 @@ and
 
 where 24 and 8 are the number of shards specified for each dataset,
 respectively. Generally speaking, we aim for selecting the number of shards such
-that roughly 1024 images reside in each shard. One this data set is built you
+that roughly 1024 images reside in each shard. Once this data set is built, you
 are ready to train or fine-tune an Inception model on this data set.
 
 Note, if you are piggy backing on the flowers retraining scripts, be sure to 

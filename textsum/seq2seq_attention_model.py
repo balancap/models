@@ -105,7 +105,8 @@ class Seq2SeqAttentionModel(object):
     if self._num_gpus == 0:
       return ''
     dev = '/gpu:%d' % self._cur_gpu
-    self._cur_gpu = (self._cur_gpu + 1) % (self._num_gpus-1)
+    if self._num_gpus > 1:
+      self._cur_gpu = (self._cur_gpu + 1) % (self._num_gpus-1)
     return dev
 
   def _get_gpu(self, gpu_id):
@@ -159,10 +160,12 @@ class Seq2SeqAttentionModel(object):
             self._next_device()):
           cell_fw = tf.nn.rnn_cell.LSTMCell(
               hps.num_hidden,
-              initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=123))
+              initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=123),
+              state_is_tuple=False)
           cell_bw = tf.nn.rnn_cell.LSTMCell(
               hps.num_hidden,
-              initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=113))
+              initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=113),
+              state_is_tuple=False)
           (emb_encoder_inputs, fw_state, _) = tf.nn.bidirectional_rnn(
               cell_fw, cell_bw, emb_encoder_inputs, dtype=tf.float32,
               sequence_length=article_lens)
@@ -187,7 +190,8 @@ class Seq2SeqAttentionModel(object):
 
         cell = tf.nn.rnn_cell.LSTMCell(
             hps.num_hidden,
-            initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=113))
+            initializer=tf.random_uniform_initializer(-0.1, 0.1, seed=113),
+            state_is_tuple=False)
 
         encoder_outputs = [tf.reshape(x, [hps.batch_size, 1, 2*hps.num_hidden])
                            for x in encoder_outputs]
